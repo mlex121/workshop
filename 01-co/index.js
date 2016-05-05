@@ -1,3 +1,4 @@
+'use strict';
 
 var fs = require('fs');
 
@@ -11,8 +12,10 @@ var fs = require('fs');
  * Hint: you can return a yieldable.
  */
 
-exports.stat = function (filename) {
-
+exports.stat = (filename) => {
+    return (done) => {
+        fs.stat(filename, done);
+    };
 };
 
 /**
@@ -31,6 +34,14 @@ exports.stat = function (filename) {
  * is not an error object, unlike node callbacks.
  */
 
-exports.exists = function (filename) {
-
+exports.exists = (filename) => {
+    return (done) => {
+        fs.stat(filename, (err, stats) => {
+            if (err) {
+                done(null, false);
+            } else {
+                done(null, true);
+            }
+        });
+    };
 };
