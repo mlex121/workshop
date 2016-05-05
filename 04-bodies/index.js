@@ -4,6 +4,12 @@ var koa = require('koa');
 
 var app = module.exports = koa();
 
+var yieldable_fs = (filename) => {
+    return (done) => {
+        fs.stat(filename, done);
+    };
+};
+
 /**
  * Create the `GET /stream` route that streams this file.
  * In node.js, the current file is available as a variable `__filename`.
@@ -12,8 +18,11 @@ var app = module.exports = koa();
 app.use(function* (next) {
   if (this.request.path !== '/stream') return yield* next;
 
-  // this.response.type =
-  // this.response.body =
+  var stats = yield yieldable_fs(__filename);
+
+  this.response.type = 'application/javascript';
+  this.response.body = fs.createReadStream(__filename);
+  this.response.length = stats.size;
 });
 
 /**
@@ -23,5 +32,5 @@ app.use(function* (next) {
 app.use(function* (next) {
   if (this.request.path !== '/json') return yield* next;
 
-  // this.response.body =
+  this.response.body = { message: 'hello world' };
 });
